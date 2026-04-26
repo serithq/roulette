@@ -149,6 +149,18 @@ let animId = null;
 
 let winnerHistory = [];
 
+function historyApiPath() {
+  const pid = presetSelect.value;
+  if (pid) return `/api/history?presetId=${encodeURIComponent(pid)}`;
+  return "/api/history";
+}
+
+function spinApiPath() {
+  const pid = presetSelect.value;
+  if (pid) return `/api/spin?presetId=${encodeURIComponent(pid)}`;
+  return "/api/spin";
+}
+
 function formatHistoryDateHeading(ymd) {
   const parts = ymd.split("-").map(Number);
   if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return ymd;
@@ -159,8 +171,9 @@ function formatHistoryDateHeading(ymd) {
 
 async function loadWinnerHistory() {
   winnerHistory = [];
+  if (!presetSelect.value) return;
   try {
-    const o = await apiGet("/api/history");
+    const o = await apiGet(historyApiPath());
     if (o && Array.isArray(o.entries)) {
       winnerHistory = o.entries.filter(
         (e) => e && typeof e.date === "string" && typeof e.name === "string" && typeof e.at === "number"
@@ -173,10 +186,14 @@ async function loadWinnerHistory() {
 
 function renderWinnerHistory() {
   winnerHistoryEl.innerHTML = "";
+  if (!presetSelect.value) {
+    renderWinnerCounts();
+    return;
+  }
   if (winnerHistory.length === 0) {
     const p = document.createElement("p");
     p.className = "history-empty";
-    p.textContent = "まだ記録がありません";
+    p.textContent = "この保存メンバー（セット）にはまだ記録がありません";
     winnerHistoryEl.appendChild(p);
     renderWinnerCounts();
     return;
@@ -238,6 +255,7 @@ function renderWinnerHistory() {
 
 function renderWinnerCounts() {
   winnerCountsEl.innerHTML = "";
+  if (!presetSelect.value) return;
   const counts = new Map();
   for (const e of winnerHistory) {
     counts.set(e.name, (counts.get(e.name) || 0) + 1);
@@ -245,7 +263,7 @@ function renderWinnerCounts() {
   if (counts.size === 0) {
     const p = document.createElement("p");
     p.className = "history-empty";
-    p.textContent = "まだ記録がありません";
+    p.textContent = "この保存メンバー（セット）にはまだ記録がありません";
     winnerCountsEl.appendChild(p);
     return;
   }
@@ -503,12 +521,15 @@ function runSim100() {
 }
 
 function updateSpinState() {
-  spinBtn.disabled = spinning || members.length < 2;
+  const presetOk = Boolean(presetSelect.value);
+  spinBtn.disabled = spinning || members.length < 2 || !presetOk;
+  spinBtn.title =
+    !presetOk && members.length >= 2 ? "「保存したメンバー」でセットを選んでから回してください" : "";
   sim100Btn.disabled = spinning || members.length < 2;
   const full = members.length >= COLOR_SLOT_COUNT;
   addBtn.disabled = spinning || full;
   nameInput.disabled = spinning || full;
-  if (members.length < 2 && !spinning) {
+  if ((!presetOk || members.length < 2) && !spinning) {
     resultEl.textContent = "";
     resultEl.className = "result empty";
   }
@@ -549,7 +570,7 @@ function computeTargetRotationForWinner(winnerIndex, startRotation, fullTurns, n
 }
 
 async function spin() {
-  if (spinning || members.length < 2) return;
+  if (spinning || members.length < 2 || !presetSelect.value) return;
   spinning = true;
   spinBtn.disabled = true;
   deletePresetBtn.disabled = true;
@@ -562,7 +583,7 @@ async function spin() {
   let winnerIndex;
   try {
     await saveState();
-    const data = await apiPost("/api/spin");
+    const data = await apiPost(spinApiPath());
     winnerIndex = data.winner_index;
     if (typeof winnerIndex !== "number" || winnerIndex < 0 || winnerIndex >= n) {
       throw new Error("invalid winner_index");
@@ -599,7 +620,7 @@ async function spin() {
       drawWheel();
       spinning = false;
       const name = members[winnerIndex].name;
-      resultEl.innerHTML = `今日の延長コード担当は<br><span style="font-size:1.35em">${escapeHtml(name)}</span> さん！`;
+      resultEl.innerHTML = `担当は<span style="font-size:1.35em">${escapeHtml(name)}</span> さん！`;
       resultEl.className = "result winner";
       void loadWinnerHistory().then(() => {
         renderWinnerHistory();
@@ -674,12 +695,16 @@ savePresetBtn.addEventListener("click", () => {
   refreshPresetSelect();
   presetSelect.value = id;
   updateSpinState();
+  void loadWinnerHistory().then(() => renderWinnerHistory());
 });
 
 presetSelect.addEventListener("change", () => {
   const id = presetSelect.value;
   deletePresetBtn.disabled = !id || spinning;
-  if (!id) return;
+  if (!id) {
+    void loadWinnerHistory().then(() => renderWinnerHistory());
+    return;
+  }
   const p = presets.find((x) => x.id === id);
   if (!p) return;
   if (spinning) return;
@@ -689,6 +714,7 @@ presetSelect.addEventListener("change", () => {
   renderList();
   updateSpinState();
   drawWheel();
+  void loadWinnerHistory().then(() => renderWinnerHistory());
 });
 
 deletePresetBtn.addEventListener("click", () => {
@@ -702,6 +728,7 @@ deletePresetBtn.addEventListener("click", () => {
   void saveState();
   refreshPresetSelect();
   updateSpinState();
+  void loadWinnerHistory().then(() => renderWinnerHistory());
 });
 
 let resizeTimer;
