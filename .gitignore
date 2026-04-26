@@ -1,0 +1,5 @@
+/.bundle/
+/vendor/bundle/
+.ruby-lsp/
+data/state.json
+data/winner_history.json

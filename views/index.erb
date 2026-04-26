@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja" data-api="1">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ルーレット</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="site-header">
+      <h1> 🎰 ルーレット 🎰 </h1>
+      <button
+        type="button"
+        class="btn-toggle-test"
+        id="toggleTestPanelBtn"
+        aria-controls="testPanel"
+        aria-expanded="false"
+      >
+        テスト用を表示
+      </button>
+    </header>
+
+    <div class="layout">
+      <div class="wheel-card">
+        <div class="wheel-wrap">
+          <div class="pointer" aria-hidden="true"></div>
+          <canvas id="wheel" width="760" height="760" aria-label="ルーレット"></canvas>
+          <div class="hub" aria-hidden="true"></div>
+        </div>
+        <div id="result" class="result empty"></div>
+        <button type="button" class="btn-spin" id="spinBtn" disabled>ルーレットを回す</button>
+      </div>
+
+      <div class="panel">
+        <h2>参加者</h2>
+        <div class="preset-block">
+          <span class="preset-label" id="presetSelectLabel">保存したメンバー</span>
+          <div class="preset-row">
+            <select id="presetSelect" aria-labelledby="presetSelectLabel"></select>
+            <button type="button" class="btn-secondary danger" id="deletePresetBtn" disabled>削除</button>
+          </div>
+          <div class="preset-row">
+            <input type="text" id="presetTitleInput" placeholder="セット名（例: フロアA）" maxlength="36" />
+            <button type="button" class="btn-secondary" id="savePresetBtn">保存</button>
+          </div>
+        </div>
+        <form class="add-row" id="addForm" autocomplete="off">
+          <input type="text" id="nameInput" placeholder="名前を入力" maxlength="40" />
+          <button type="submit" class="btn-add">追加</button>
+        </form>
+        <div class="color-field">
+          <div class="color-field-label">ルーレットの色</div>
+          <div class="tpl-bar" id="tplBar" role="group" aria-label="色テンプレート"></div>
+        </div>
+        <ul class="names" id="nameList"></ul>
+        <button type="button" class="btn-clear" id="clearBtn">一覧をクリア</button>
+        <p class="hint">一覧はこのサーバー（<code>data/state.json</code>）に保存されます。当選履歴は <code>data/winner_history.json</code> に記録されます。色は他の参加者とかぶらないよう選べます（最大8人）。</p>
+      </div>
+    </div>
+
+    <section class="history-section" aria-label="当選履歴">
+      <h2 class="history-heading">当選履歴</h2>
+      <div id="winnerHistory" class="history-mount"></div>
+    </section>
+
+    <section class="counts-section ranking-section" aria-label="当選ランキング">
+      <h2 class="history-heading">当選ランキング</h2>
+      <div id="winnerCounts" class="counts-mount"></div>
+    </section>
+
+    <section id="testPanel" class="sim-section is-hidden" aria-label="テスト用シミュレーション">
+      <h2 class="history-heading">テスト用（100回）</h2>
+      <p class="sim-desc">いまの参加者で <code>randInt(n)</code> を100回だけ回したときの当選回数です（ブラウザ側）。本番の抽選はサーバーの <code>rand</code> です。</p>
+      <button type="button" class="btn-secondary" id="sim100Btn">100回シミュレーション</button>
+      <pre id="sim100Output" class="sim-output" aria-live="polite"></pre>
+    </section>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
