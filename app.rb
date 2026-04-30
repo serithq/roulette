@@ -7,7 +7,6 @@ require "time"
 require "sinatra"
 
 set :public_folder, File.join(__dir__, "public")
-set :views, File.join(__dir__, "views")
 
 DATA_DIR = File.join(__dir__, "data")
 STATE_PATH = File.join(DATA_DIR, "state.json")
@@ -40,8 +39,9 @@ helpers do
   end
 end
 
+# トップページ（public/index.html を静的に返す）
 get "/" do
-  erb :index
+  send_file File.join(settings.public_folder, "index.html")
 end
 
 get "/api/state" do

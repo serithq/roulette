@@ -1,0 +1,15 @@
+{
+  "name": "roulette-client",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ルーレットアプリのフロントエンド（TypeScript）",
+  "scripts": {
+    "build": "esbuild src/app.ts --bundle --outfile=public/app.js --target=es2020 --sourcemap",
+    "dev": "esbuild src/app.ts --bundle --outfile=public/app.js --target=es2020 --sourcemap --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "typescript": "^6.0.3"
+  }
+}
