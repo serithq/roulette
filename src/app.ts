@@ -1,35 +1,15 @@
-type ColorId =
-  | "ruby"
-  | "orange"
-  | "amber"
-  | "lime"
-  | "teal"
-  | "ocean"
-  | "violet"
-  | "slate";
+import type {
+  ColorId,
+  Member,
+  Preset,
+  SpinResponse,
+  WinnerEntry,
+} from "./shared/types";
 
 type ColorTemplate = {
   id: ColorId;
   label: string;
   fill: string;
-};
-
-type Member = {
-  name: string;
-  colorId: ColorId;
-};
-
-type Preset = {
-  id: string;
-  title: string;
-  members: Member[];
-};
-
-type WinnerEntry = {
-  date: string;
-  name: string;
-  at: number;
-  presetId?: string;
 };
 
 type StateResponse = {
@@ -39,11 +19,6 @@ type StateResponse = {
 
 type HistoryResponse = {
   entries?: unknown;
-};
-
-type SpinResponse = {
-  winner_index: number;
-  winner_name: string;
 };
 
 function $<T extends HTMLElement>(id: string): T {

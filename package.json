@@ -6,10 +6,16 @@
   "scripts": {
     "build": "esbuild src/app.ts --bundle --outfile=public/app.js --target=es2020 --sourcemap",
     "dev": "esbuild src/app.ts --bundle --outfile=public/app.js --target=es2020 --sourcemap --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.functions.json --noEmit",
+    "pages:dev": "npm run build && wrangler pages dev",
+    "pages:deploy": "npm run build && wrangler pages deploy",
+    "kv:seed:local": "node scripts/seed-kv.mjs --local",
+    "kv:seed:remote": "node scripts/seed-kv.mjs --remote"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260430.1",
     "esbuild": "^0.28.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.86.0"
   }
 }

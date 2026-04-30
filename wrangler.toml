@@ -1,0 +1,11 @@
+name = "roulette"
+compatibility_date = "2026-04-30"
+pages_build_output_dir = "./public"
+
+# KV ネームスペース。
+# - id          : 本番（`wrangler kv namespace create ROULETTE_KV` で作成）
+# - preview_id  : ローカル `wrangler pages dev` 用（`--preview` で作成）
+[[kv_namespaces]]
+binding = "ROULETTE_KV"
+id = "15b0379eeb684aaa83d56a94c5c5aad4"
+preview_id = "cf6578ccd8044ce284c23150a9dd6745"
